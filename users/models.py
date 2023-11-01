@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from users.managers import CustomUserManager
+from users.managers import UserManager
 
 
 class Organization(models.Model):
@@ -10,9 +10,12 @@ class Organization(models.Model):
     enabled = models.BooleanField(null=False, default=True)
 
 
-class CustomUser(AbstractUser):
+class User(AbstractUser):
     username = None
     email = models.EmailField(_("email address"), unique=True)
+
+    name = models.CharField(max_length=64, null=False, blank=False)
+    surname = models.CharField(max_length=64, null=False, blank=False)
     organization = models.ForeignKey(
         Organization,
         on_delete=models.CASCADE,
@@ -24,7 +27,7 @@ class CustomUser(AbstractUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
-    objects = CustomUserManager()
+    objects = UserManager()
 
     def __str__(self):
         return self.email

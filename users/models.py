@@ -11,9 +11,11 @@ class Organization(models.Model):
 
 
 class User(AbstractUser):
+    ROLE = [("ADM", "Administrador"), ("OPS", "Operador")]
+
     username = None
     email = models.EmailField(_("email address"), unique=True)
-
+    role = models.CharField(max_length=3, choices=ROLE, blank=False)
     name = models.CharField(max_length=64, null=False, blank=False)
     surname = models.CharField(max_length=64, null=False, blank=False)
     organization = models.ForeignKey(

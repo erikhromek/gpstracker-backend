@@ -44,14 +44,17 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
     "rest_framework",
+    "rest_framework.authtoken",
     "users",
     "alerts",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -78,6 +81,15 @@ TEMPLATES = [
     },
 ]
 
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
+
+STATIC_HOST = os.environ.get("DJANGO_STATIC_HOST", "") if not DEBUG else ""
+STATIC_URL = STATIC_HOST + "/static/"
+
 WSGI_APPLICATION = "backend.wsgi.application"
 
 
@@ -91,7 +103,7 @@ DATABASES = {
         "USER": os.getenv("DB_USER", None),
         "PASSWORD": os.getenv("DB_PASS", None),
         "HOST": os.getenv("DB_HOST", None),
-        "PORT": os.getenv("DB_PORT", "5432"),
+        "PORT": os.getenv("DB_PORT", 5432),
     }
 }
 
@@ -114,6 +126,15 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.BasicAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
@@ -138,6 +159,8 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = "users.User"
+
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # custom settings for local environment
 try:  # noqa: SIM105

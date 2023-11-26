@@ -42,7 +42,7 @@ class Beneficiary(models.Model):
     type = models.ForeignKey(
         BeneficiaryType,
         on_delete=models.CASCADE,
-        null=False,
+        null=True,
         verbose_name=_("type"),
     )
 

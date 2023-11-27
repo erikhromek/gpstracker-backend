@@ -162,6 +162,31 @@ AUTH_USER_MODEL = "users.User"
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "default": {
+            "format": "[DJANGO] %(levelname)s %(asctime)s %(module)s "
+            "%(name)s.%(funcName)s:%(lineno)s: %(message)s"
+        },
+    },
+    "handlers": {
+        "console": {
+            "level": "WARNING",
+            "class": "logging.StreamHandler",
+            "formatter": "default",
+        }
+    },
+    "loggers": {
+        "*": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": True,
+        }
+    },
+}
+
 # custom settings for local environment
 try:  # noqa: SIM105
     from .local_settings import *  # noqa: F401, F403

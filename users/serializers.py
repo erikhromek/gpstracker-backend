@@ -14,6 +14,26 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "surname", "email", "organization"]
 
 
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "name", "surname", "email", "password"]
+
+    def validate(self, attrs):
+        logged_user = self.context.get("request").user
+        modified_user = User.objects.get(id=self.instance.id)
+        if logged_user.organization.id != modified_user.organization.id:
+            raise serializers.ValidationError(
+                _("Solo se pueden modificar usuarios propios.")
+            )
+
+        if logged_user.role != "ADM" and logged_user.id != modified_user.id:
+            raise serializers.ValidationError(
+                _("Solo se puede modificar el usuario propio.")
+            )
+        return attrs
+
+
 # Serializer to Register Root User
 class RegisterRootSerializer(serializers.ModelSerializer):
     organization_name = serializers.CharField(

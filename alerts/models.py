@@ -7,7 +7,7 @@ from users.models import Organization, User
 
 class BeneficiaryType(models.Model):
     code = models.CharField(max_length=8, null=False, blank=False)
-    description = models.CharField(max_length=8, null=False, blank=False)
+    description = models.CharField(max_length=32, null=False, blank=False)
     organization = models.ForeignKey(
         Organization,
         on_delete=models.CASCADE,
@@ -41,9 +41,20 @@ class Beneficiary(models.Model):
     )
     type = models.ForeignKey(
         BeneficiaryType,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True,
         verbose_name=_("type"),
+    )
+
+
+class AlertType(models.Model):
+    code = models.CharField(max_length=8, null=False, blank=False)
+    description = models.CharField(max_length=32, null=False, blank=False)
+    organization = models.ForeignKey(
+        Organization,
+        on_delete=models.CASCADE,
+        null=False,
+        verbose_name=_("organization"),
     )
 
 
@@ -69,8 +80,14 @@ class Alert(models.Model):
     )
     operator = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True,
         verbose_name=_("operator"),
     )
     observations = models.CharField(max_length=512, null=True, blank=True)
+    type = models.ForeignKey(
+        AlertType,
+        on_delete=models.SET_NULL,
+        null=True,
+        verbose_name=_("type"),
+    )

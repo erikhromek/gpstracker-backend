@@ -27,10 +27,9 @@ class BeneficiaryViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = BeneficiarySerializer(instance)
         instance.enabled = False
-        instance = serializer.save(instance)
-        return Response(instance, status=status.HTTP_200_OK)
+        instance.save()
+        return Response(status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()

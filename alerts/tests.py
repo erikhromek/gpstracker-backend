@@ -182,7 +182,7 @@ class TestBeneficiaryCreation(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_beneficiary_update_and_disable(self):
+    def test_beneficiary_update_and_delete(self):
         response = self.client.post(
             self.register_root_url, self.register_root_user_data, format="json"
         )
@@ -205,9 +205,7 @@ class TestBeneficiaryCreation(APITestCase):
             "alerts:beneficiary-detail", kwargs={"pk": beneficiary["id"]}
         )
 
-        response = self.client.patch(
-            beneficiaries_update_url, self.update_beneficiary_data, format="json"
-        )
+        response = self.client.delete(beneficiaries_update_url, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         beneficiary = Beneficiary.objects.get(id=beneficiary["id"])

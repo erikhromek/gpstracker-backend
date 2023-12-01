@@ -66,6 +66,8 @@ class Alert(models.Model):
     ]
 
     datetime = models.DateTimeField(null=False)
+    datetime_attended = models.DateTimeField(null=True)
+    datetime_closed = models.DateTimeField(null=True)
     beneficiary = models.ForeignKey(
         Beneficiary,
         on_delete=models.CASCADE,
@@ -91,3 +93,13 @@ class Alert(models.Model):
         null=True,
         verbose_name=_("type"),
     )
+    organization = models.ForeignKey(
+        Organization,
+        on_delete=models.CASCADE,
+        null=False,
+        verbose_name=_("organization"),
+    )
+
+    @property
+    def telephone(self):
+        return self.beneficiary.telephone

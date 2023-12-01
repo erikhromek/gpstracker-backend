@@ -1,11 +1,51 @@
+from http.client import METHOD_NOT_ALLOWED
+
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from alerts.models import Alert, Beneficiary
+from alerts.models import Alert, AlertType, Beneficiary, BeneficiaryType
 from alerts.permissions import IsSameOrganization
-from alerts.serializers import AlertSerializer, BeneficiarySerializer
+from alerts.serializers import (
+    AlertSerializer,
+    AlertTypeSerializer,
+    BeneficiarySerializer,
+    BeneficiaryTypeSerializer,
+)
 from alerts.utils import EnablePartialUpdateMixin
+
+
+class BeneficiaryTypeViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
+    permission_classes = (
+        IsAuthenticated,
+        IsSameOrganization,
+    )
+    serializer_class = BeneficiaryTypeSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = self.filter_queryset(
+            BeneficiaryType.objects.filter(organization=user.organization)
+        )
+        return queryset
+
+
+class AlertTypeViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
+    permission_classes = (
+        IsAuthenticated,
+        IsSameOrganization,
+    )
+    serializer_class = AlertTypeSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = self.filter_queryset(
+            AlertType.objects.filter(organization=user.organization)
+        )
+        return queryset
 
 
 class BeneficiaryViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
@@ -20,9 +60,14 @@ class BeneficiaryViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
 
     serializer_class = BeneficiarySerializer
 
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["telephone", "name", "surname", "enabled"]
+
     def get_queryset(self):
         user = self.request.user
-        queryset = Beneficiary.objects.filter(organization=user.organization)
+        queryset = self.filter_queryset(
+            Beneficiary.objects.filter(organization=user.organization)
+        )
         return queryset
 
     def destroy(self, request, *args, **kwargs):
@@ -42,7 +87,7 @@ class BeneficiaryViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-class AlertViewSet(viewsets.ModelViewSet):
+class AlertViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
     """
     A viewset that provides the standard actions for beneficiaries
     """
@@ -52,9 +97,73 @@ class AlertViewSet(viewsets.ModelViewSet):
         IsSameOrganization,
     )
 
+    serializer_class = AlertSerializer
+
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = {
+        "datetime": ["lte", "gte"],
+        "beneficiary_id": ["exact"],
+        "state": ["exact"],
+        "type": ["exact"],
+    }
+
     def get_queryset(self):
         user = self.request.user
-        queryset = Alert.objects.filter(organization=user.organization)
+        queryset = self.filter_queryset(
+            Alert.objects.filter(organization=user.organization)
+        ).order_by("-datetime")
         return queryset
 
-    serializer_class = AlertSerializer
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+
+        """
+        Validaciones sobre alerta:
+        """
+        if "state" in request.data:
+            if request.data["state"] == "N":
+                return Response(
+                    _("Cambio de estado inválido"), status=status.HTTP_400_BAD_REQUEST
+                )
+
+            if request.data["state"] == "A":
+                if instance.state != "N":
+                    return Response(
+                        _("Cambio de estado inválido"),
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+                else:
+                    instance.state = "A"
+                    instance.datetime_attended = timezone.now()
+                    instance.operator = request.user
+
+            if request.data["state"] == "C":
+                if instance.state != "A":
+                    return Response(
+                        _("Cambio de estado inválido"),
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+                else:
+                    instance.state = "C"
+                    instance.datetime_closed = timezone.now()
+
+        if "type_id" in request.data:
+            try:
+                type = AlertType.objects.get(
+                    id=request.data["type_id"], organization=request.user.organization
+                )
+                instance.type = type
+            except AlertType.DoesNotExist:
+                return Response(
+                    _("Tipo de alerta inválido"), status=status.HTTP_400_BAD_REQUEST
+                )
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, *args, **kwargs):
+        raise METHOD_NOT_ALLOWED(request.method)

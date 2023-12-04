@@ -1,15 +1,16 @@
 from http.client import METHOD_NOT_ALLOWED
 
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django_filters.rest_framework import DjangoFilterBackend
+from django_twilio.decorators import twilio_view
 from rest_framework import status, viewsets
 from rest_framework.parsers import FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-# from alerts.decorators import validate_twilio_request
 from alerts.models import Alert, AlertType, Beneficiary, BeneficiaryType
 from alerts.permissions import IsSameOrganization
 from alerts.serializers import (
@@ -177,7 +178,10 @@ class TwilioWebhookView(APIView):
     permission_classes = ()
     parser_classes = [FormParser]
 
-    # @validate_twilio_request
+    @method_decorator(twilio_view)
+    def dispatch(self, request, *args, **kwargs):
+        return super(TwilioWebhookView, self).dispatch(request, *args, **kwargs)
+
     def post(self, request, format=None):
         try:
             message_sid = request.data["MessageSid"]

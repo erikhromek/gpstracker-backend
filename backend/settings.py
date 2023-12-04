@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "django_filters",
     "users",
     "alerts",
+    "django_twilio",
 ]
 
 MIDDLEWARE = [
@@ -149,7 +150,9 @@ USE_I18N = True
 
 USE_TZ = True
 
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID", None)
 TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN", None)
+DJANGO_TWILIO_FORGERY_PROTECTION = not DEBUG
 
 
 # Static files (CSS, JavaScript, Images)

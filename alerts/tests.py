@@ -1,12 +1,14 @@
 import json
 import random
 import string
+from urllib.parse import urlencode
 
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from alerts.models import Beneficiary
+from alerts.models import Alert, Beneficiary
+from backend import settings
 from users.managers import UserManager
 from users.models import User
 
@@ -499,3 +501,74 @@ class TestAlerts(APITestCase):
         self.assertEqual(alert["state"], "C")
         self.assertIsNotNone(alert["datetime_closed"])
         self.assertIsNotNone(alert["type_id"])
+
+
+class TestTwilioWebhook(APITestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user_manager = UserManager()
+
+    def setUp(self):
+        self.twilio_webhook_url = reverse("alerts:twilio-webhook")
+        self.register_root_url = reverse("users:register-admin")
+        self.beneficiaries_url = reverse("alerts:beneficiary-list")
+
+        random_password = "".join(
+            random.choice(string.ascii_letters) for i in range(10)
+        )
+        self.register_root_user_data = {
+            "name": "John",
+            "surname": "Smith",
+            "email": "test_user@email.com",
+            "organization_name": "CEIoT",
+            "password": random_password,
+            "password2": random_password,
+        }
+        self.register_beneficiary_data = {
+            "name": "John",
+            "surname": "Smith",
+            "telephone": "1154047987",
+            "company": "CLA",
+            "description": "Prueba de beneficiario",
+            "enabled": True,
+        }
+
+        self.twilio_sms_data = {
+            "From": 1154047987,
+            "MessageSid": "SMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+            "Body": "https://maps.google.com/?q=-34.75755778740859,-58.28999854451876",
+            "NumMedia": 0,
+        }
+
+    def test_twilio_sms_webhook(self):
+        response = self.client.post(
+            self.register_root_url, self.register_root_user_data, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        user = User.objects.get(email=self.register_root_user_data["email"])
+        self.assertEqual(
+            user.organization.name, self.register_root_user_data["organization_name"]
+        )
+        self.assertEqual(user.role, "ADM")
+
+        self.client.force_authenticate(user=user)
+        response = self.client.post(
+            self.beneficiaries_url, self.register_beneficiary_data, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        settings.DEBUG = False
+        response = self.client.post(
+            self.twilio_webhook_url,
+            urlencode(self.twilio_sms_data),
+            content_type="application/x-www-form-urlencoded",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        alerts = Alert.objects.all()
+        self.assertEqual(len(alerts), 1)
+        self.assertEqual(
+            alerts[0].beneficiary.telephone, self.register_beneficiary_data["telephone"]
+        )

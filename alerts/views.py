@@ -4,9 +4,12 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
+from rest_framework.parsers import FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
+# from alerts.decorators import validate_twilio_request
 from alerts.models import Alert, AlertType, Beneficiary, BeneficiaryType
 from alerts.permissions import IsSameOrganization
 from alerts.serializers import (
@@ -167,3 +170,49 @@ class AlertViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         raise METHOD_NOT_ALLOWED(request.method)
+
+
+class TwilioWebhookView(APIView):
+    authentication_classes = ()
+    permission_classes = ()
+    parser_classes = [FormParser]
+
+    # @validate_twilio_request
+    def post(self, request, format=None):
+        try:
+            message_sid = request.data["MessageSid"]
+            # El cuerpo debe tener el formato https://maps.google.com/?q=<lat>,<lng>
+            body = request.data["Body"]
+            telephone = request.data["From"]
+        except KeyError:
+            return Response(
+                _("Formulario inválido, se requiere MessageSid, Body y From"),
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if body and "https://maps.google.com/?q=" in body:
+            try:
+                partition = body.split("https://maps.google.com/?q=")
+                latitude, longitude = partition[1].split(",")
+                data = {
+                    "latitude": latitude,
+                    "longitude": longitude,
+                    "telephone": telephone,
+                    "message_sid": message_sid,
+                }
+                serializer = AlertSerializer(data=data)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(status=status.HTTP_200_OK)
+                else:
+                    return Response(
+                        _("Error creando alerta"), status=status.HTTP_400_BAD_REQUEST
+                    )
+            except ValueError:
+                return Response(
+                    _("Datos del SMS inválidos"), status=status.HTTP_400_BAD_REQUEST
+                )
+        else:
+            return Response(
+                _("Cuerpo del SMS inválido"), status=status.HTTP_400_BAD_REQUEST
+            )

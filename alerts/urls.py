@@ -1,4 +1,4 @@
-from django.urls import include, path
+from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from alerts.views import (
@@ -6,6 +6,7 @@ from alerts.views import (
     AlertViewSet,
     BeneficiaryTypeViewSet,
     BeneficiaryViewSet,
+    TwilioWebhookView,
 )
 
 app_name = "alerts"
@@ -22,5 +23,7 @@ router.register(r"alert-types", AlertTypeViewSet, basename="alert-type")
 
 # The API URLs are now determined automatically by the router.
 urlpatterns = [
-    path("", include(router.urls)),
+    path("twilio-webhook/", TwilioWebhookView.as_view(), name="twilio-webhook"),
 ]
+
+urlpatterns += router.urls

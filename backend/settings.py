@@ -149,6 +149,8 @@ USE_I18N = True
 
 USE_TZ = True
 
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN", None)
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/

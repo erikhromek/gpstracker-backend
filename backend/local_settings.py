@@ -13,6 +13,8 @@ STATIC_ROOT = os.path.join(PROJECT_PATH, "static")
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(PROJECT_PATH, "media")
 
+TWILIO_AUTH_TOKEN = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",

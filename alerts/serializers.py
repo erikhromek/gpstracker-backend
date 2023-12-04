@@ -143,12 +143,9 @@ class BeneficiarySerializer(serializers.ModelSerializer):
         return beneficiary
 
 
-class TwilioWebhookSerializer(serializers.Serializer):
-    pass
-
-
 class AlertSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
+    message_sid = serializers.CharField(max_length=34, required=False)
     beneficiary_id = serializers.IntegerField(allow_null=True, required=False)
     telephone = serializers.CharField(
         max_length=32, required=True, validators=[only_int]
@@ -180,6 +177,7 @@ class AlertSerializer(serializers.ModelSerializer):
             "operator_id",
             "observations",
             "type_id",
+            "message_sid",
         ]
 
     def create(self, validated_data):
@@ -187,9 +185,12 @@ class AlertSerializer(serializers.ModelSerializer):
         try:
             existing_beneficiary = Beneficiary.objects.get(
                 telephone=validated_data["telephone"],
+                enabled=True,
             )
         except Beneficiary.DoesNotExist:
-            raise serializers.ValidationError(_("El beneficiario no existe."))
+            raise serializers.ValidationError(
+                _("El beneficiario no existe o se encuentra desactivado.")
+            )
 
         if existing_beneficiary:
             alert = Alert.objects.create(

@@ -17,6 +17,8 @@ TWILIO_ACCOUNT_SID = "ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 TWILIO_AUTH_TOKEN = "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"
 DJANGO_TWILIO_FORGERY_PROTECTION = False
 
+CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",

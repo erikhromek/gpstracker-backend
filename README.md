@@ -29,6 +29,12 @@ docker run -d \
 
 Reemplazar {YOUR_PASSWORD} por una contraseña de base de datos y {YOUR_HOME_FOLDER} con la dirección del _Home_ del usuario.
 
+Para crear una instancia de Redis:
+
+```
+docker run --name gpstracker-redis -p 6379:6379 -d redis
+```
+
 ## Autores
 - Erik Hromek
 

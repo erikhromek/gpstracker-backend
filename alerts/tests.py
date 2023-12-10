@@ -3,12 +3,17 @@ import random
 import string
 from urllib.parse import urlencode
 
+from channels.layers import get_channel_layer
+from channels.routing import URLRouter
+from channels.testing import WebsocketCommunicator
+from django.test import Client
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from alerts.models import Alert, Beneficiary
 from backend import settings
+from backend.routing import websocket_urlpatterns
 from users.managers import UserManager
 from users.models import User
 
@@ -572,3 +577,74 @@ class TestTwilioWebhook(APITestCase):
         self.assertEqual(
             alerts[0].beneficiary.telephone, self.register_beneficiary_data["telephone"]
         )
+
+
+class TestAlertChannels(APITestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user_manager = UserManager()
+
+    @classmethod
+    def setUpTestData(cls):
+        register_root_url = reverse("users:register-admin")
+        random_password = "".join(
+            random.choice(string.ascii_letters) for i in range(10)
+        )
+
+        register_root_user_data = {
+            "name": "John",
+            "surname": "Smith",
+            "email": "test_user@email.com",
+            "organization_name": "CEIoT",
+            "password": random_password,
+            "password2": random_password,
+        }
+
+        c = Client()
+
+        c.post(register_root_url, register_root_user_data, format="json")
+
+    def setUp(self):
+        self.update_alert_data = {"state": "A"}
+        self.register_alert_data = {
+            "latitude": "-34.757884",
+            "longitude": "-58.2927029",
+            "telephone": "1154047987",
+        }
+        self.user = User.objects.all()[0]
+        self.organization_id = self.user.organization.id
+        return super().setUp()
+
+    async def test_alert_consumer_connect(self):
+        communicator = WebsocketCommunicator(
+            URLRouter(websocket_urlpatterns),
+            f"/ws/alerts/organization-{self.organization_id}/",
+        )
+        communicator.scope["user"] = self.user
+        connected, subprotocol = await communicator.connect()
+        assert connected
+
+        channel_layer = get_channel_layer()
+        await channel_layer.group_send(
+            "1",
+            {
+                "type": "alert_message",
+                "message": self.register_alert_data,
+            },
+        )
+
+        response = await communicator.receive_from()
+        assert json.loads(response) == self.register_alert_data
+        # Close
+        await communicator.disconnect()
+
+        communicator = WebsocketCommunicator(
+            URLRouter(websocket_urlpatterns),
+            f"/ws/alerts/organization-{self.organization_id + 1}/",
+        )
+        communicator.scope["user"] = self.user
+        connected, subprotocol = await communicator.connect()
+        assert not connected
+        # Close
+        await communicator.disconnect()

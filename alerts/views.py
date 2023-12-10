@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from http.client import METHOD_NOT_ALLOWED
 
 from django.utils import timezone
@@ -220,3 +221,20 @@ class TwilioWebhookView(APIView):
             return Response(
                 _("Cuerpo del SMS inválido"), status=status.HTTP_400_BAD_REQUEST
             )
+
+
+class AlertsSummaryView(APIView):
+    permission_classes = (
+        IsAuthenticated,
+        IsSameOrganization,
+    )
+
+    def get(self, request):
+        user = self.request.user
+        queryset = self.filter_queryset(
+            Alert.objects.filter(
+                organization=user.organization,
+                datetime__gte=datetime.now() - timedelta(days=1),
+            ).order_by("-datetime")
+        )
+        return queryset

@@ -1,5 +1,5 @@
 from django.urls import path
-from rest_framework.authtoken import views
+from rest_framework.authtoken import obtain_jwt_token, refresh_jwt_token, views
 
 from .views import (
     RegisterRootUserAPIView,
@@ -18,4 +18,6 @@ urlpatterns = [
     path("users/operator", RegisterUserAPIView.as_view(), name="register-user"),
     path("users/<int:pk>/", UpdateUserAPIView.as_view(), name="update"),
     path("login", views.obtain_auth_token, name="login"),
+    path("api-token-auth/", obtain_jwt_token),
+    path("api-token-refresh/", refresh_jwt_token),
 ]

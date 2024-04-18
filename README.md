@@ -35,6 +35,12 @@ Para crear una instancia de Redis:
 docker run --name gpstracker-redis -p 6379:6379 -d redis
 ```
 
+Para crear un superusuario:
+
+`python manage.py createsuperuser`
+
+y seguir el wizard.
+
 ## Autores
 - Erik Hromek
 

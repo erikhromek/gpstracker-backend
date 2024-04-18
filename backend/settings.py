@@ -11,8 +11,17 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 import os
-from datetime import datetime
+from datetime import timedelta
 from pathlib import Path
+
+import django
+from django.utils.encoding import smart_str
+
+django.utils.encoding.smart_text = smart_str
+
+from django.utils.translation import gettext
+
+django.utils.translation.ugettext = gettext
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -141,7 +150,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework_jwt.authentication.JSONWebTokenAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
         "rest_framework.authentication.BasicAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ],
@@ -154,7 +163,7 @@ REST_FRAMEWORK = {
 
 JWT_AUTH = {
     "JWT_ALLOW_REFRESH": True,
-    "JWT_EXPIRATION_DELTA": datetime.timedelta(seconds=3600),
+    "JWT_EXPIRATION_DELTA": timedelta(seconds=3600),
 }
 
 # Websockets

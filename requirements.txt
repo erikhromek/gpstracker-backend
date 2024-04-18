@@ -4,8 +4,9 @@ django-filter==23.4
 psycopg[binary]==3.1.13
 whitenoise==6.6.0
 gevent==23.9.1
-django-twilio=0.14.3.2
+django-twilio==0.14.3.2
 channels[daphne]==4.0.0
-channel-redis==4.1.0
+channels-redis==4.2.0
 pytest-django==4.7.0
 pytest-asyncio==0.23.2
+djangorestframework-simplejwt==5.3.1

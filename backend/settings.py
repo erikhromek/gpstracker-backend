@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
+    "drf_yasg",
     "rest_framework",
     "rest_framework.authtoken",
     "django_filters",
@@ -155,7 +156,6 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticatedOrReadOnly",
         "rest_framework.permissions.IsAuthenticated",
     ],
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
@@ -184,6 +184,8 @@ USE_I18N = True
 
 USE_TZ = True
 
+APPEND_SLASH = True
+
 TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID", None)
 TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN", None)
 DJANGO_TWILIO_FORGERY_PROTECTION = not DEBUG
@@ -199,9 +201,12 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+REST_FRAMEWORK = {"DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema"}
+
 AUTH_USER_MODEL = "users.User"
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
 
 LOGGING = {
     "version": 1,

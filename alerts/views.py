@@ -7,10 +7,13 @@ from django.utils.translation import gettext_lazy as _
 from django_filters.rest_framework import DjangoFilterBackend
 from django_twilio.decorators import twilio_view
 from rest_framework import status, viewsets
+from rest_framework.authentication import BasicAuthentication
+from rest_framework.generics import GenericAPIView
 from rest_framework.parsers import FormParser
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from alerts.models import Alert, AlertType, Beneficiary, BeneficiaryType
 from alerts.permissions import IsSameOrganization
@@ -24,10 +27,10 @@ from alerts.utils import EnablePartialUpdateMixin
 
 
 class BeneficiaryTypeViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
-    permission_classes = (
-        IsAuthenticated,
+    authentication_classes = [JWTAuthentication, BasicAuthentication]
+    permission_classes = [
         IsSameOrganization,
-    )
+    ]
     serializer_class = BeneficiaryTypeSerializer
 
     def get_queryset(self):
@@ -39,10 +42,10 @@ class BeneficiaryTypeViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
 
 
 class AlertTypeViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
-    permission_classes = (
-        IsAuthenticated,
+    authentication_classes = [JWTAuthentication, BasicAuthentication]
+    permission_classes = [
         IsSameOrganization,
-    )
+    ]
     serializer_class = AlertTypeSerializer
 
     def get_queryset(self):
@@ -58,10 +61,10 @@ class BeneficiaryViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
     A viewset that provides the standard actions for beneficiaries
     """
 
-    permission_classes = (
-        IsAuthenticated,
+    authentication_classes = [JWTAuthentication, BasicAuthentication]
+    permission_classes = [
         IsSameOrganization,
-    )
+    ]
 
     serializer_class = BeneficiarySerializer
 
@@ -97,10 +100,10 @@ class AlertViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
     A viewset that provides the standard actions for beneficiaries
     """
 
-    permission_classes = (
-        IsAuthenticated,
+    authentication_classes = [JWTAuthentication, BasicAuthentication]
+    permission_classes = [
         IsSameOrganization,
-    )
+    ]
 
     serializer_class = AlertSerializer
 
@@ -175,8 +178,10 @@ class AlertViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
 
 
 class TwilioWebhookView(APIView):
-    authentication_classes = ()
-    permission_classes = ()
+    authentication_classes = []
+    permission_classes = [
+        AllowAny,
+    ]
     parser_classes = [FormParser]
 
     @method_decorator(twilio_view)
@@ -223,11 +228,11 @@ class TwilioWebhookView(APIView):
             )
 
 
-class AlertsSummaryView(APIView):
-    permission_classes = (
+class AlertsSummaryView(GenericAPIView):
+    authentication_classes = [JWTAuthentication, BasicAuthentication]
+    permission_classes = [
         IsAuthenticated,
-        IsSameOrganization,
-    )
+    ]
 
     def get(self, request):
         user = self.request.user
@@ -237,4 +242,4 @@ class AlertsSummaryView(APIView):
                 datetime__gte=datetime.now() - timedelta(days=1),
             ).order_by("-datetime")
         )
-        return queryset
+        return Response(queryset)

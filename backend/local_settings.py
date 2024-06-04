@@ -5,6 +5,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["localhost", "*"]
 
+CORS_ORIGIN_ALLOW_ALL = DEBUG
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
 PROJECT_PATH = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
 STATIC_URL = "/static/"

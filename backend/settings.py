@@ -23,6 +23,8 @@ from django.utils.translation import gettext
 
 django.utils.translation.ugettext = gettext
 
+import dj_database_url
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -131,16 +133,7 @@ CHANNEL_LAYERS = {
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("DATABASE_NAME", None),
-        "USER": os.getenv("DATABASE_USER", None),
-        "PASSWORD": os.getenv("DATABASE_PASSWORD", None),
-        "HOST": os.getenv("DATABASE_URL", None),
-        "PORT": os.getenv("DATABASE_PORT", 5432),
-    }
-}
+DATABASES["default"] = dj_database_url.config()
 
 
 # Password validation

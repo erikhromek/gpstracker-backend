@@ -35,8 +35,10 @@ SECRET_KEY = os.environ.get(
     "SECRET_KEY", "django-insecure-=ee1ax*$3*v++j#g%+pz=s5l1ci4pjp)6v9#$gu@7*%ttbi^a*"
 )
 
+ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
+
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG", False)
+DEBUG = bool(int(os.environ.get("DEBUG", 0)))
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", None)
 
@@ -104,8 +106,15 @@ STORAGES = {
     },
 }
 
+PROJECT_PATH = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+
 STATIC_HOST = os.environ.get("DJANGO_STATIC_HOST", "") if not DEBUG else ""
+
 STATIC_URL = STATIC_HOST + "/static/"
+STATIC_ROOT = os.path.join(PROJECT_PATH, "static")
+
+MEDIA_URL = STATIC_HOST + "/media/"
+MEDIA_ROOT = os.path.join(PROJECT_PATH, "media")
 
 WSGI_APPLICATION = "backend.wsgi.application"
 ASGI_APPLICATION = "backend.asgi.application"
@@ -125,11 +134,11 @@ CHANNEL_LAYERS = {
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("DB_NAME", None),
-        "USER": os.getenv("DB_USER", None),
-        "PASSWORD": os.getenv("DB_PASS", None),
-        "HOST": os.getenv("DB_HOST", None),
-        "PORT": os.getenv("DB_PORT", 5432),
+        "NAME": os.getenv("DATABASE_NAME", None),
+        "USER": os.getenv("DATABASE_USER", None),
+        "PASSWORD": os.getenv("DATABASE_PASSWORD", None),
+        "HOST": os.getenv("DATABASE_URL", None),
+        "PORT": os.getenv("DATABASE_PORT", 5432),
     }
 }
 
@@ -265,7 +274,8 @@ LOGGING = {
 }
 
 # custom settings for local environment
-try:  # noqa: SIM105
-    from .local_settings import *  # noqa: F401, F403
-except ImportError:
-    pass
+if ENVIRONMENT == "development":
+    try:  # noqa: SIM105
+        from .local_settings import *  # noqa: F401, F403
+    except ImportError:
+        pass

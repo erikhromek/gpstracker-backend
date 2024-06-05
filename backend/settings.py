@@ -49,6 +49,12 @@ if ALLOWED_HOSTS:
 else:
     ALLOWED_HOSTS = []
 
+CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", None)
+
+if CORS_ALLOWED_ORIGINS:
+    CORS_ALLOWED_ORIGINS = CORS_ALLOWED_ORIGINS.split(",")
+else:
+    CORS_ALLOWED_ORIGINS = []
 
 # Application definition
 

@@ -12,3 +12,5 @@ pytest-asyncio==0.23.2
 djangorestframework-simplejwt==5.3.1
 django-rest-swagger==2.2.0
 drf_yasg==1.21.7
+gunicorn==22.0.0
+uvicorn[standard]==0.30.1

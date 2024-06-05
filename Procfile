@@ -1,1 +1,1 @@
-web: gunicorn myproject.wsgi
+web: uvicorn backend.asgi:application

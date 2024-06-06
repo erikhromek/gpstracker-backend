@@ -15,6 +15,9 @@ class BeneficiaryType(models.Model):
         verbose_name=_("organization"),
     )
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
 
 class Beneficiary(models.Model):
     COMPANY_CHOICES = [
@@ -46,6 +49,9 @@ class Beneficiary(models.Model):
         verbose_name=_("type"),
     )
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
 
 class AlertType(models.Model):
     code = models.CharField(max_length=8, null=False, blank=False)
@@ -56,6 +62,9 @@ class AlertType(models.Model):
         null=False,
         verbose_name=_("organization"),
     )
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
 
 
 class Alert(models.Model):
@@ -101,6 +110,9 @@ class Alert(models.Model):
         null=False,
         verbose_name=_("organization"),
     )
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
 
     @property
     def telephone(self):

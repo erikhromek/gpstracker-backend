@@ -9,6 +9,9 @@ class Organization(models.Model):
     name = models.CharField(max_length=64, null=False, blank=False)
     enabled = models.BooleanField(null=False, default=True)
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
 
 class User(AbstractUser):
     ROLE = [("ADM", "Administrador"), ("OPS", "Operador")]
@@ -25,6 +28,9 @@ class User(AbstractUser):
         null=True,
         verbose_name=_("organization"),
     )
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

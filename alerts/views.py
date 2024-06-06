@@ -234,6 +234,8 @@ class AlertsSummaryView(GenericAPIView):
         IsAuthenticated,
     ]
 
+    serializer_class = AlertSerializer
+
     def get(self, request):
         user = self.request.user
         queryset = self.filter_queryset(
@@ -242,4 +244,5 @@ class AlertsSummaryView(GenericAPIView):
                 datetime__gte=datetime.now() - timedelta(days=1),
             ).order_by("-datetime")
         )
-        return Response(queryset)
+        serializer = AlertSerializer(queryset, many=True)
+        return Response(serializer.data)

@@ -68,7 +68,7 @@ class AlertType(models.Model):
 
 
 class Alert(models.Model):
-    message_sid = models.CharField(max_length=34, null=True)  # Used to Twilio
+    message_sid = models.CharField(max_length=34, blank=True)  # Used to Twilio
 
     ALERT_STATUS = [
         ("N", _("New")),

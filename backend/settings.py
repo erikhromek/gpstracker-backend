@@ -218,7 +218,7 @@ AUTH_USER_MODEL = "users.User"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(hour=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": False,

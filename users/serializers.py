@@ -9,15 +9,23 @@ from users.models import Organization, User
 
 
 class UserSerializer(serializers.ModelSerializer):
+    organization_name = serializers.CharField(
+        read_only=True, source="organization.name"
+    )
+
     class Meta:
         model = User
-        fields = ["id", "name", "surname", "email", "organization"]
+        fields = ["id", "name", "surname", "email", "organization_name"]
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
+    organization_name = serializers.CharField(
+        read_only=True, source="organization.name"
+    )
+
     class Meta:
         model = User
-        fields = ["id", "name", "surname", "email", "password"]
+        fields = ["id", "name", "surname", "email", "organization_name"]
 
     def validate(self, attrs):
         logged_user = self.context.get("request").user

@@ -85,7 +85,7 @@ class UpdateUserAPIView(generics.UpdateAPIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class TokenObtainPairResponseSerializer(serializers.Serializer):

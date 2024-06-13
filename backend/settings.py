@@ -126,9 +126,10 @@ MEDIA_ROOT = os.path.join(PROJECT_PATH, "media")
 WSGI_APPLICATION = "backend.wsgi.application"
 ASGI_APPLICATION = "backend.asgi.application"
 
+
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "BACKEND": os.getenv("CHANNEL_BACKEND", "channels.layers.InMemoryChannelLayer"),
         "CONFIG": {
             "hosts": [(os.getenv("REDIS_HOST", None), os.getenv("REDIS_PORT", None))],
         },

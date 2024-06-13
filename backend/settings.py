@@ -28,7 +28,6 @@ import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -55,9 +54,6 @@ if CORS_ALLOWED_ORIGINS:
     CORS_ALLOWED_ORIGINS = CORS_ALLOWED_ORIGINS.split(",")
 else:
     CORS_ALLOWED_ORIGINS = []
-
-
-AUTH_USER_MODEL = "users.User"
 
 # Application definition
 
@@ -129,6 +125,7 @@ MEDIA_ROOT = os.path.join(PROJECT_PATH, "media")
 WSGI_APPLICATION = "backend.wsgi.application"
 ASGI_APPLICATION = "backend.asgi.application"
 
+AUTH_USER_MODEL = "users.User"
 
 CHANNEL_LAYERS = {
     "default": {

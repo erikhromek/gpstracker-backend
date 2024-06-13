@@ -17,6 +17,7 @@ from django_channels_jwt.middleware import JwtAuthMiddlewareStack
 from backend.routing import websocket_urlpatterns
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
+django_asgi_app = get_asgi_application()
 
 application = ProtocolTypeRouter(
     {

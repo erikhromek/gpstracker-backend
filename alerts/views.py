@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from http.client import METHOD_NOT_ALLOWED
 from random import choice, randrange
-from string import ascii_uppercase
+from string import digits
 
 from django.http import HttpResponse
 from django.utils import timezone
@@ -10,13 +10,11 @@ from django.utils.translation import gettext_lazy as _
 from django_filters.rest_framework import DjangoFilterBackend
 from django_twilio.decorators import twilio_view
 from rest_framework import status, viewsets
-from rest_framework.authentication import BasicAuthentication
 from rest_framework.generics import GenericAPIView
 from rest_framework.parsers import FormParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from alerts.models import Alert, AlertType, Beneficiary, BeneficiaryType
 from alerts.permissions import IsSameOrganization
@@ -30,7 +28,6 @@ from alerts.utils import EnablePartialUpdateMixin
 
 
 class BeneficiaryTypeViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
-    authentication_classes = [JWTAuthentication, BasicAuthentication]
     permission_classes = [
         IsSameOrganization,
     ]
@@ -45,7 +42,6 @@ class BeneficiaryTypeViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
 
 
 class AlertTypeViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
-    authentication_classes = [JWTAuthentication, BasicAuthentication]
     permission_classes = [
         IsSameOrganization,
     ]
@@ -60,8 +56,6 @@ class AlertTypeViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
 
 
 class FakeAlertAPIView(APIView):
-    authentication_classes = [JWTAuthentication, BasicAuthentication]
-
     serializer_class = AlertSerializer
 
     def post(self, request, format=None):
@@ -79,7 +73,7 @@ class FakeAlertAPIView(APIView):
         loc_pos = randrange(4)
 
         organization = request.user.organization
-        telephone = "".join(choice(ascii_uppercase) for _ in range(12))
+        telephone = "".join(choice(digits) for _ in range(12))
         beneficiary = Beneficiary.objects.create(
             organization=organization,
             name="Juan",
@@ -107,7 +101,6 @@ class BeneficiaryViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
     A viewset that provides the standard actions for beneficiaries
     """
 
-    authentication_classes = [JWTAuthentication, BasicAuthentication]
     permission_classes = [
         IsSameOrganization,
     ]
@@ -146,7 +139,6 @@ class AlertViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
     A viewset that provides the standard actions for beneficiaries
     """
 
-    authentication_classes = [JWTAuthentication, BasicAuthentication]
     permission_classes = [
         IsSameOrganization,
     ]
@@ -275,7 +267,6 @@ class TwilioWebhookView(APIView):
 
 
 class AlertsSummaryView(GenericAPIView):
-    authentication_classes = [JWTAuthentication, BasicAuthentication]
     permission_classes = [
         IsAuthenticated,
     ]

@@ -1,10 +1,8 @@
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics, serializers, status
-from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.views import (
     TokenBlacklistView,
     TokenObtainPairView,
@@ -24,7 +22,6 @@ from .serializers import (
 
 
 class UserListAPI(generics.ListAPIView):
-    authentication_classes = [JWTAuthentication, BasicAuthentication]
     permission_classes = [
         IsSameOrganization,
     ]
@@ -39,7 +36,6 @@ class UserListAPI(generics.ListAPIView):
 
 # Class based view to Get User Details using Token Authentication
 class UserDetailAPI(APIView):
-    authentication_classes = [JWTAuthentication, BasicAuthentication]
     permission_classes = [
         IsAuthenticated,
     ]
@@ -60,7 +56,6 @@ class RegisterRootUserAPIView(generics.CreateAPIView):
 
 
 class RegisterUserAPIView(generics.CreateAPIView):
-    authentication_classes = [JWTAuthentication, BasicAuthentication]
     permission_classes = [
         IsAuthenticated,
         IsAdmin,
@@ -69,7 +64,6 @@ class RegisterUserAPIView(generics.CreateAPIView):
 
 
 class UpdateUserAPIView(generics.UpdateAPIView):
-    authentication_classes = [JWTAuthentication, BasicAuthentication]
     permission_classes = [
         IsSameOrganization,
     ]

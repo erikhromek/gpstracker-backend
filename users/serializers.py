@@ -12,10 +12,18 @@ class UserSerializer(serializers.ModelSerializer):
     organization_name = serializers.CharField(
         read_only=True, source="organization.name"
     )
+    organization_id = serializers.CharField(read_only=True, source="organization.id")
 
     class Meta:
         model = User
-        fields = ["id", "name", "surname", "email", "organization_name"]
+        fields = [
+            "id",
+            "name",
+            "surname",
+            "email",
+            "organization_name",
+            "organization_id",
+        ]
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):

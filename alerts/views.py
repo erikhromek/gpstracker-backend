@@ -1,6 +1,9 @@
 from datetime import datetime, timedelta
 from http.client import METHOD_NOT_ALLOWED
+from random import choice, randrange
+from string import ascii_uppercase
 
+from django.http import HttpResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
@@ -54,6 +57,49 @@ class AlertTypeViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
             AlertType.objects.filter(organization=user.organization)
         )
         return queryset
+
+
+class FakeAlertAPIView(APIView):
+    authentication_classes = [JWTAuthentication, BasicAuthentication]
+
+    serializer_class = AlertSerializer
+
+    def post(self, request, format=None):
+        """
+        Creates a fake alert
+        """
+
+        locations = [
+            (-34.654905, -58.6497804),
+            (-34.676289, -58.378931),
+            (-34.6497796, -58.51051807),
+            (-34.6326636, -58.692194399),
+        ]
+
+        loc_pos = randrange(4)
+
+        organization = request.user.organization
+        telephone = "".join(choice(ascii_uppercase) for _ in range(12))
+        beneficiary = Beneficiary.objects.create(
+            organization=organization,
+            name="Juan",
+            surname="Perez",
+            telephone=telephone,
+            description="beneficiario en situacion de emergencia",
+            company="CLA",
+        )
+
+        beneficiary.save()
+        alert = Alert.objects.create(
+            datetime=datetime.now(),
+            beneficiary=beneficiary,
+            latitude=locations[loc_pos][0],
+            longitude=locations[loc_pos][1],
+            organization=organization,
+        )
+
+        alert.save()
+        return HttpResponse(status=200)
 
 
 class BeneficiaryViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):

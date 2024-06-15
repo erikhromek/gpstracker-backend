@@ -194,12 +194,12 @@ class AlertViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
                     instance.state = "C"
                     instance.datetime_closed = timezone.now()
 
-        if "type_id" in request.data:
+        if "type_id" in request.data and request.data["type_id"]:
             try:
-                type = AlertType.objects.get(
+                alert_type = AlertType.objects.get(
                     id=request.data["type_id"], organization=request.user.organization
                 )
-                instance.type = type
+                instance.type = alert_type
             except AlertType.DoesNotExist:
                 return Response(
                     _("Tipo de alerta inválido"), status=status.HTTP_400_BAD_REQUEST

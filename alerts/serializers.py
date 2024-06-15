@@ -145,21 +145,23 @@ class BeneficiarySerializer(serializers.ModelSerializer):
 
 class AlertSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    message_sid = serializers.CharField(max_length=34, required=False)
+    message_sid = serializers.CharField(max_length=34, required=False, allow_null=True)
     beneficiary_id = serializers.IntegerField(allow_null=True, required=False)
     telephone = serializers.CharField(
         max_length=32, required=True, validators=[only_int]
     )
     datetime = serializers.DateTimeField(required=False)
-    datetime_attended = serializers.DateTimeField(required=False)
-    datetime_closed = serializers.DateTimeField(required=False)
+    datetime_attended = serializers.DateTimeField(required=False, allow_null=True)
+    datetime_closed = serializers.DateTimeField(required=False, allow_null=True)
     latitude = serializers.CharField(max_length=64, required=True)
     longitude = serializers.CharField(max_length=64, required=True)
     state = serializers.ChoiceField(
         choices=Alert.ALERT_STATUS, required=False, default="N"
     )
     operator_id = serializers.IntegerField(allow_null=True, required=False)
-    observations = serializers.CharField(max_length=512, required=False)
+    observations = serializers.CharField(
+        max_length=512, required=False, allow_null=True
+    )
     type_id = serializers.IntegerField(allow_null=True, required=False)
 
     beneficiary_name = serializers.CharField(read_only=True, source="beneficiary.name")

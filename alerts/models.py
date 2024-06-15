@@ -117,3 +117,7 @@ class Alert(models.Model):
     @property
     def telephone(self):
         return self.beneficiary.telephone
+
+    @telephone.setter
+    def telephone(self, value):
+        pass

@@ -164,46 +164,52 @@ class AlertViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=True)
 
-        """
-        Validaciones sobre alerta:
-        """
-        if "state" in request.data:
-            if request.data["state"] == "N":
-                return Response(
-                    _("Cambio de estado inválido"), status=status.HTTP_400_BAD_REQUEST
-                )
+        INVALID_ALERT_STATE_CHANGE = "Cambio de estado inválido"
 
-            if request.data["state"] == "A":
-                if instance.state != "N":
+        if serializer.is_valid():
+            """
+            Validaciones sobre alerta:
+            """
+            if "state" in request.data:
+                if request.data["state"] == "N":
                     return Response(
-                        _("Cambio de estado inválido"),
-                        status=status.HTTP_400_BAD_REQUEST,
+                        INVALID_ALERT_STATE_CHANGE, status=status.HTTP_400_BAD_REQUEST
                     )
-                else:
-                    instance.state = "A"
-                    instance.datetime_attended = timezone.now()
-                    instance.operator = request.user
 
-            if request.data["state"] == "C":
-                if instance.state != "A":
+                if request.data["state"] == "A":
+                    if instance.state != "N":
+                        return Response(
+                            INVALID_ALERT_STATE_CHANGE,
+                            status=status.HTTP_400_BAD_REQUEST,
+                        )
+                    else:
+                        serializer.validated_data["state"] = "A"
+                        serializer.validated_data["datetime_attended"] = timezone.now()
+                        serializer.validated_data["operator"] = request.user
+
+                if request.data["state"] == "C":
+                    if instance.state != "A":
+                        return Response(
+                            INVALID_ALERT_STATE_CHANGE,
+                            status=status.HTTP_400_BAD_REQUEST,
+                        )
+                    else:
+                        serializer.validated_data["state"] = "C"
+                        serializer.validated_data["datetime_closed"] = timezone.now()
+
+            if "type_id" in request.data and request.data["type_id"]:
+                try:
+                    alert_type = AlertType.objects.get(
+                        id=request.data["type_id"],
+                        organization=request.user.organization,
+                    )
+                    serializer.validated_data.type = alert_type
+                except AlertType.DoesNotExist:
                     return Response(
-                        _("Cambio de estado inválido"),
-                        status=status.HTTP_400_BAD_REQUEST,
+                        _("Tipo de alerta inválido"), status=status.HTTP_400_BAD_REQUEST
                     )
-                else:
-                    instance.state = "C"
-                    instance.datetime_closed = timezone.now()
-
-        if "type_id" in request.data and request.data["type_id"]:
-            try:
-                alert_type = AlertType.objects.get(
-                    id=request.data["type_id"], organization=request.user.organization
-                )
-                instance.type = alert_type
-            except AlertType.DoesNotExist:
-                return Response(
-                    _("Tipo de alerta inválido"), status=status.HTTP_400_BAD_REQUEST
-                )
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         if serializer.is_valid():
             serializer.save()

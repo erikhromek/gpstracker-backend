@@ -209,7 +209,7 @@ class AlertViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, *args, **kwargs):
         raise METHOD_NOT_ALLOWED(request.method)
@@ -251,7 +251,7 @@ class TwilioWebhookView(APIView):
                 serializer = AlertSerializer(data=data)
                 if serializer.is_valid():
                     serializer.save()
-                    return Response(status=status.HTTP_200_OK)
+                    return Response(serializer.data, status=status.HTTP_200_OK)
                 else:
                     return Response(
                         _("Error creando alerta"), status=status.HTTP_400_BAD_REQUEST

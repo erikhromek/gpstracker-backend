@@ -149,6 +149,7 @@ class AlertSerializer(serializers.ModelSerializer):
         max_length=34,
         required=False,
         allow_null=True,
+        allow_blank=True,
     )
     beneficiary_id = serializers.IntegerField(allow_null=True, required=False)
     telephone = serializers.CharField(

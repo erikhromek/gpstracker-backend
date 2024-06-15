@@ -97,7 +97,7 @@ class Alert(models.Model):
         null=True,
         verbose_name=_("operator"),
     )
-    observations = models.CharField(max_length=512, null=True, blank=True)
+    observations = models.CharField(max_length=512, blank=True)
     type = models.ForeignKey(
         AlertType,
         on_delete=models.SET_NULL,

@@ -145,7 +145,11 @@ class BeneficiarySerializer(serializers.ModelSerializer):
 
 class AlertSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    message_sid = serializers.CharField(max_length=34, required=False, allow_null=True)
+    message_sid = serializers.CharField(
+        max_length=34,
+        required=False,
+        allow_null=True,
+    )
     beneficiary_id = serializers.IntegerField(allow_null=True, required=False)
     telephone = serializers.CharField(
         max_length=32, required=True, validators=[only_int]
@@ -160,7 +164,7 @@ class AlertSerializer(serializers.ModelSerializer):
     )
     operator_id = serializers.IntegerField(allow_null=True, required=False)
     observations = serializers.CharField(
-        max_length=512, required=False, allow_null=True
+        max_length=512, required=False, allow_null=True, allow_blank=True
     )
     type_id = serializers.IntegerField(allow_null=True, required=False)
 

@@ -19,28 +19,35 @@ class BeneficiaryTypeSerializer(serializers.ModelSerializer):
             "description",
         ]
 
-    def create(self, validated_data):
+    def validate(self, data):
         request = self.context.get("request")
         try:
-            existing_type = BeneficiaryType.objects.get(
-                code=validated_data["code"], organization=request.user.organization
+            existing_type = BeneficiaryType.objects.filter(
+                code=data["code"], organization=request.user.organization
             )
-            if existing_type:
+            if len(existing_type) > 0:
                 raise serializers.ValidationError(
-                    _(
-                        "El codigo utilizado para el tipo de beneficiario ya se encuentra creado."
-                    )
+                    {
+                        "code": [
+                            _(
+                                "El codigo utilizado para el tipo de beneficiario ya se encuentra creado."
+                            )
+                        ]
+                    }
                 )
         except BeneficiaryType.DoesNotExist:
             pass
+        return data
+
+    def create(self, validated_data):
         request = self.context.get("request")
-        type = BeneficiaryType.objects.create(
+        beneficiary_type = BeneficiaryType.objects.create(
             code=validated_data["code"],
             description=validated_data["description"],
             organization=request.user.organization,
         )
-        type.save()
-        return type
+        beneficiary_type.save()
+        return beneficiary_type
 
 
 class AlertTypeSerializer(serializers.ModelSerializer):

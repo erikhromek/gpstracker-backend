@@ -14,16 +14,16 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+import dj_database_url
 import django
 from django.utils.encoding import smart_str
+from django.utils.translation import gettext
 
 django.utils.encoding.smart_text = smart_str
 
-from django.utils.translation import gettext
 
 django.utils.translation.ugettext = gettext
 
-import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -127,14 +127,21 @@ ASGI_APPLICATION = "backend.asgi.application"
 
 AUTH_USER_MODEL = "users.User"
 
+DEFAULT_CHANNEL_LAYER = "channels.layers.InMemoryChannelLayer"
+
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": os.getenv("CHANNEL_BACKEND", "channels.layers.InMemoryChannelLayer"),
+        "BACKEND": os.getenv("CHANNEL_BACKEND", DEFAULT_CHANNEL_LAYER),
         "CONFIG": {
             "hosts": [(os.getenv("REDIS_HOST", None), os.getenv("REDIS_PORT", None))],
         },
     },
 }
+
+if os.getenv("CHANNEL_BACKEND", DEFAULT_CHANNEL_LAYER) != DEFAULT_CHANNEL_LAYER:
+    CHANNEL_LAYERS["default"]["CONFIG"]["hosts"] = [
+        (os.getenv("REDIS_HOST", None), os.getenv("REDIS_PORT", None))
+    ]
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases

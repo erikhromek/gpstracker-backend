@@ -36,7 +36,9 @@ class BeneficiaryTypeViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         queryset = self.filter_queryset(
-            BeneficiaryType.objects.filter(organization=user.organization)
+            BeneficiaryType.objects.filter(organization=user.organization).order_by(
+                "id"
+            )
         )
         return queryset
 
@@ -50,7 +52,7 @@ class AlertTypeViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         queryset = self.filter_queryset(
-            AlertType.objects.filter(organization=user.organization)
+            AlertType.objects.filter(organization=user.organization).order_by("id")
         )
         return queryset
 

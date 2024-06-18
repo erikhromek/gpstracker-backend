@@ -25,7 +25,9 @@ class BeneficiaryTypeSerializer(serializers.ModelSerializer):
             existing_type = BeneficiaryType.objects.filter(
                 code=data["code"], organization=request.user.organization
             )
-            if len(existing_type) > 1:
+            if self.instance:
+                existing_type = existing_type.exclude(id=self.instance.id)
+            if len(existing_type) > 0:
                 raise serializers.ValidationError(
                     {
                         "code": [
@@ -69,7 +71,9 @@ class AlertTypeSerializer(serializers.ModelSerializer):
             existing_type = AlertType.objects.filter(
                 code=data["code"], organization=request.user.organization
             )
-            if len(existing_type) > 1:
+            if self.instance:
+                existing_type = existing_type.exclude(id=self.instance.id)
+            if len(existing_type) > 0:
                 raise serializers.ValidationError(
                     {
                         "code": [

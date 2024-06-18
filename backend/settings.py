@@ -132,16 +132,13 @@ DEFAULT_CHANNEL_LAYER = "channels.layers.InMemoryChannelLayer"
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": os.getenv("CHANNEL_BACKEND", DEFAULT_CHANNEL_LAYER),
-        # "CONFIG": {
-        #    "hosts": [(os.getenv("REDIS_HOST", None), os.getenv("REDIS_PORT", None))],
-        # },
     },
 }
 
-# if os.getenv("CHANNEL_BACKEND", DEFAULT_CHANNEL_LAYER) != DEFAULT_CHANNEL_LAYER:
-#     CHANNEL_LAYERS["default"]["CONFIG"]["hosts"] = [
-#         (os.getenv("REDIS_HOST", None), os.getenv("REDIS_PORT", None))
-#     ]
+if os.getenv("CHANNEL_BACKEND", DEFAULT_CHANNEL_LAYER) != DEFAULT_CHANNEL_LAYER:
+    CHANNEL_LAYERS["default"]["CONFIG"]["hosts"] = [
+        (os.getenv("REDIS_HOST", None), os.getenv("REDIS_PORT", None))
+    ]
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases

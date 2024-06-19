@@ -146,7 +146,7 @@ if os.getenv("CHANNEL_BACKEND", DEFAULT_CHANNEL_LAYER) != DEFAULT_CHANNEL_LAYER:
 if ENVIRONMENT == "production":
     DATABASES = {
         "default": dj_database_url.config(
-            conn_max_age=60,
+            conn_max_age=0,
             conn_health_checks=True,
         ),
     }

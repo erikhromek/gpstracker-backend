@@ -127,7 +127,7 @@ class BeneficiaryViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         queryset = self.filter_queryset(
-            Beneficiary.objects.filter(organization=user.organization)
+            Beneficiary.objects.filter(organization=user.organization).order_by("id")
         )
         return queryset
 
@@ -145,7 +145,7 @@ class BeneficiaryViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AlertViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):

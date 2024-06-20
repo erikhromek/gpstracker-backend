@@ -128,10 +128,14 @@ class BeneficiarySerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         if "telephone" in data:
             try:
-                existing_beneficiary = Beneficiary.objects.get(
+                existing_beneficiary = Beneficiary.objects.filter(
                     telephone=data["telephone"]
                 )
-                if existing_beneficiary:
+                if self.instance:
+                    existing_beneficiary = existing_beneficiary.exclude(
+                        id=self.instance.id
+                    )
+                if len(existing_beneficiary) > 0:
                     raise serializers.ValidationError(
                         {
                             "telephone": [
@@ -143,11 +147,11 @@ class BeneficiarySerializer(serializers.ModelSerializer):
                     )
             except Beneficiary.DoesNotExist:
                 pass
-        if "type_id" in data:
-            alert_types = BeneficiaryType.objects.filter(
+        if "type_id" in data and data["type_id"]:
+            beneficiary_types = BeneficiaryType.objects.filter(
                 id=data["type_id"], organization=request.user.organization
             )
-            if not alert_types:
+            if not beneficiary_types:
                 raise serializers.ValidationError(
                     {"type_id": [_("El tipo de beneficiario es inválido.")]}
                 )
@@ -164,25 +168,24 @@ class BeneficiarySerializer(serializers.ModelSerializer):
             enabled=validated_data["enabled"],
             organization=request.user.organization,
         )
-        if "type_id" in validated_data:
-            alert_type = BeneficiaryType.objects.get(
+        if "type_id" in validated_data and validated_data["type_id"]:
+            beneficiary_type = BeneficiaryType.objects.get(
                 id=validated_data["type_id"], organization=request.user.organization
             )
-            beneficiary.type = alert_type
+            beneficiary.type = beneficiary_type
         beneficiary.save()
         return beneficiary
 
     def update(self, instance, validated_data):
         request = self.context.get("request")
-        if "type_id" in validated_data:
+        if "type_id" in validated_data and validated_data["type_id"]:
             alert_type = BeneficiaryType.objects.get(
                 id=validated_data["type_id"], organization=request.user.organization
             )
             instance.type = alert_type
         else:
             instance.type = None
-        instance.save()
-        return instance
+        return super().update(instance, validated_data)
 
 
 class AlertSerializer(serializers.ModelSerializer):

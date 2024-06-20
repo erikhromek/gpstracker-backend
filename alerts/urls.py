@@ -8,6 +8,7 @@ from alerts.views import (
     BeneficiaryTypeViewSet,
     BeneficiaryViewSet,
     FakeAlertAPIView,
+    FakeErrorAPIView,
     TwilioWebhookView,
 )
 
@@ -28,6 +29,7 @@ urlpatterns = [
     path("twilio-webhook/", TwilioWebhookView.as_view(), name="twilio-webhook"),
     path("alerts-summary/", AlertsSummaryView.as_view(), name="alerts-summary"),
     path("dummy-alert/", FakeAlertAPIView.as_view(), name="dummy-alert"),
+    path("dummy-error/", FakeErrorAPIView.as_view(), name="dummy-error"),
 ]
 
 urlpatterns += router.urls

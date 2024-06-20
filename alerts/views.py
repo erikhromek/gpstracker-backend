@@ -57,6 +57,18 @@ class AlertTypeViewSet(EnablePartialUpdateMixin, viewsets.ModelViewSet):
         return queryset
 
 
+class FakeErrorAPIView(APIView):
+    def get(self, request, format=None):
+        error = request.GET.get("error", "")
+        match error:
+            case "404":
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            case "500":
+                return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            case _:
+                return Response(status=status.HTTP_418_IM_A_TEAPOT)
+
+
 class FakeAlertAPIView(APIView):
     serializer_class = AlertSerializer
 

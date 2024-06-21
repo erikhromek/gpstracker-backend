@@ -33,7 +33,9 @@ class Beneficiary(models.Model):
     telephone = models.CharField(
         max_length=32, null=False, blank=False, validators=[only_int]
     )
-    company = models.CharField(max_length=3, choices=COMPANY_CHOICES, blank=True)
+    company = models.CharField(
+        max_length=3, choices=COMPANY_CHOICES, default="OTH", blank=True
+    )
     enabled = models.BooleanField(null=False, default=True)
     description = models.CharField(max_length=512, null=False, blank=True)
     organization = models.ForeignKey(

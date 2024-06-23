@@ -267,7 +267,7 @@ class TwilioWebhookView(APIView):
                     "latitude": latitude,
                     "longitude": longitude,
                     # ^\+[1-9]\d{1,14}$ es el formato del teléfono
-                    "telephone": telephone.replace("+", "").replace("549"),
+                    "telephone": telephone.replace("+", "").replace("549", ""),
                     "message_sid": message_sid,
                 }
                 serializer = AlertSerializer(data=data)

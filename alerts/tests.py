@@ -570,6 +570,7 @@ class TestTwilioWebhook(APITestCase):
             urlencode(self.twilio_sms_data),
             content_type="application/x-www-form-urlencoded",
         )
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         alerts = Alert.objects.all()

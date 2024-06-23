@@ -15,6 +15,7 @@ from rest_framework.parsers import FormParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from twilio import twiml
 
 from alerts.models import Alert, AlertType, Beneficiary, BeneficiaryType
 from alerts.permissions import IsSameOrganization
@@ -272,7 +273,7 @@ class TwilioWebhookView(APIView):
                 serializer = AlertSerializer(data=data)
                 if serializer.is_valid():
                     serializer.save()
-                    return Response(serializer.data, status=status.HTTP_200_OK)
+                    return twiml.Response()
                 else:
                     return Response(
                         _("Error creando alerta"), status=status.HTTP_400_BAD_REQUEST
